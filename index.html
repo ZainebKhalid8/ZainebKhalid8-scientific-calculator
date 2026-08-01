@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Practice Scientific Calculator</title>
+  <style>
+    :root{
+      --blue:#0b3d91;
+      --blue2:#1d5fd1;
+      --yellow:#ffd400;
+      --yellow2:#ffea70;
+      --white:#ffffff;
+      --light:#f4f8ff;
+      --shadow:0 10px 24px rgba(11,61,145,.25);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:var(--blue);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* Top website bar */
+    .topbar{
+      background:var(--yellow);
+      color:var(--blue);
+      padding:12px 18px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-weight:700;
+      box-shadow:var(--shadow);
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .topbar .sub{
+      font-weight:600;
+      font-size:.92rem;
+      background:var(--white);
+      padding:6px 10px;
+      border-radius:999px;
+      border:2px solid var(--blue);
+    }
+
+    .wrap{
+      width:min(980px,95%);
+      margin:20px auto;
+      background:var(--light);
+      border:3px solid var(--yellow);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:220px 1fr;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      background:var(--blue);
+      color:var(--white);
+      padding:14px;
+    }
+    .sidebar h3{
+      margin:4px 0 10px;
+      color:var(--yellow);
+      font-size:1.03rem;
+    }
+    .menu button{
+      width:100%;
+      text-align:left;
+      border:none;
+      border-radius:10px;
+      padding:10px;
+      margin:6px 0;
+      cursor:pointer;
+      background:var(--yellow);
+      color:var(--blue);
+      font-weight:700;
+    }
+    .menu button.active{
+      outline:2px solid var(--white);
+      background:var(--yellow2);
+    }
+    .small-note{
+      margin-top:12px;
+      font-size:.85rem;
+      line-height:1.35;
+      color:#dbe8ff;
+      border-top:1px dashed rgba(255,255,255,.4);
+      padding-top:10px;
+    }
+
+    /* Main content */
+    .content{
+      padding:14px;
+      background:var(--white);
+    }
+    .panel{display:none;}
+    .panel.active{display:block;}
+    .panel h2{
+      margin:0 0 10px;
+      color:var(--blue);
+      border-left:6px solid var(--yellow);
+      padding-left:10px;
+    }
+
+    .history{
+      min-height:22px;
+      text-align:right;
+      color:#355ca3;
+      margin-bottom:6px;
+      font-size:.92rem;
+    }
+    .display{
+      width:100%;
+      border:2px solid var(--blue);
+      border-radius:10px;
+      font-size:1.7rem;
+      text-align:right;
+      padding:12px;
+      margin-bottom:10px;
+      background:#eef4ff;
+      color:var(--blue);
+      font-weight:700;
+    }
+
+    .keys{
+      display:grid;
+      grid-template-columns:repeat(6,1fr);
+      gap:8px;
+    }
+    .keys button{
+      border:none;
+      border-radius:10px;
+      padding:10px 8px;
+      font-size:.95rem;
+      cursor:pointer;
+      font-weight:700;
+      background:var(--blue);
+      color:var(--yellow);
+    }
+    .keys button:hover{filter:brightness(1.12)}
+    .keys .num{background:var(--blue2)}
+    .keys .fn{background:var(--yellow); color:var(--blue)}
+    .keys .eq{background:var(--yellow2); color:var(--blue)}
+    .keys .danger{background:#174aaf; color:var(--yellow)}
+    .span2{grid-column:span 2;}
+
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:10px;
+    }
+    .card{
+      border:2px solid var(--blue);
+      border-radius:12px;
+      padding:10px;
+      background:#fffef0;
+    }
+    .card h4{margin:0 0 6px;color:var(--blue)}
+    .card p{margin:0;color:#244a90;font-size:.92rem}
+
+    .chat{
+      height:240px;
+      overflow:auto;
+      border:2px solid var(--blue);
+      border-radius:10px;
+      padding:10px;
+      background:#f3f7ff;
+    }
+    .msg{margin:8px 0;line-height:1.35}
+    .you{color:#0f3f95}
+    .bot{color:#1d5fd1}
+    .ask-row{
+      display:flex; gap:8px; margin-top:8px;
+    }
+    .ask-row input{
+      flex:1; border:2px solid var(--blue); border-radius:10px;
+      padding:10px;
+    }
+    .ask-row button{
+      border:none; border-radius:10px; padding:10px 12px;
+      background:var(--yellow); color:var(--blue); font-weight:700; cursor:pointer;
+    }
+
+    .footer{
+      text-align:center;
+      background:var(--yellow);
+      color:var(--blue);
+      padding:10px;
+      font-weight:700;
+      border-top:2px solid var(--blue);
+    }
+
+    @media (max-width:900px){
+      .layout{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div>🌟 Student Practice Scientific Calculator</div>
+    <div class="sub">Code by Zaineb</div>
+  </div>
+
+  <div class="wrap">
+    <div class="layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <h3>Menu</h3>
+        <div class="menu">
+          <button class="tab-btn active" data-tab="calculator">🧮 Calculator</button>
+          <button class="tab-btn" data-tab="about">ℹ️ About</button>
+          <button class="tab-btn" data-tab="resources">📘 Resources</button>
+          <button class="tab-btn" data-tab="agent">🤖 Ask Helper</button>
+        </div>
+        <div class="small-note">
+          For student simple practice only.<br/>
+          Use Enter = result, Esc = clear.
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="content">
+        <!-- Calculator -->
+        <section id="calculator" class="panel active">
+          <h2>Scientific Calculator</h2>
+          <div id="history" class="history"></div>
+          <input id="display" class="display" type="text" value="0" readonly />
+
+          <div class="keys">
+            <button class="danger" onclick="clearAll()">AC</button>
+            <button class="danger" onclick="deleteLast()">DEL</button>
+            <button class="fn" onclick="append('(')">(</button>
+            <button class="fn" onclick="append(')')">)</button>
+            <button class="fn" onclick="setConst('Math.PI')">π</button>
+            <button class="fn" onclick="setConst('Math.E')">e</button>
+
+            <button class="fn" onclick="appendFn('Math.sin(')">sin</button>
+            <button class="fn" onclick="appendFn('Math.cos(')">cos</button>
+            <button class="fn" onclick="appendFn('Math.tan(')">tan</button>
+            <button class="fn" onclick="appendFn('Math.log10(')">log</button>
+            <button class="fn" onclick="appendFn('Math.log(')">ln</button>
+            <button class="fn" onclick="appendFn('Math.sqrt(')">√</button>
+
+            <button class="num" onclick="append('7')">7</button>
+            <button class="num" onclick="append('8')">8</button>
+            <button class="num" onclick="append('9')">9</button>
+            <button onclick="append('/')">÷</button>
+            <button class="fn" onclick="append('**2')">x²</button>
+            <button class="fn" onclick="appendFn('factorial(')">n!</button>
+
+            <button class="num" onclick="append('4')">4</button>
+            <button class="num" onclick="append('5')">5</button>
+            <button class="num" onclick="append('6')">6</button>
+            <button onclick="append('*')">×</button>
+            <button class="fn" onclick="append('**')">xʸ</button>
+            <button class="fn" onclick="append('%')">%</button>
+
+            <button class="num" onclick="append('1')">1</button>
+            <button class="num" onclick="append('2')">2</button>
+            <button class="num" onclick="append('3')">3</button>
+            <button onclick="append('-')">−</button>
+            <button class="fn" onclick="appendFn('Math.abs(')">|x|</button>
+            <button class="fn" onclick="appendFn('Math.round(')">round</button>
+
+            <button class="num span2" onclick="append('0')">0</button>
+            <button class="num" onclick="append('.')">.</button>
+            <button onclick="append('+')">+</button>
+            <button class="eq span2" onclick="calculate()">=</button>
+          </div>
+        </section>
+
+        <!-- About -->
+        <section id="about" class="panel">
+          <h2>About</h2>
+          <p><b>Code by Zaineb</b></p>
+          <p>This is a student-friendly scientific calculator for simple math practice and learning basic functions.</p>
+          <p>Theme colors used: <b>Yellow + Blue</b>.</p>
+        </section>
+
+        <!-- Resources -->
+        <section id="resources" class="panel">
+          <h2>Quick Resources</h2>
+          <div class="cards">
+            <div class="card">
+              <h4>Trigonometry</h4>
+              <p>Practice sin, cos, tan with examples.</p>
+            </div>
+            <div class="card">
+              <h4>Logarithms</h4>
+              <p>Understand log (base 10) and ln.</p>
+            </div>
+            <div class="card">
+              <h4>Factorial</h4>
+              <p>n! = n × (n-1) × ... × 1</p>
+            </div>
+            <div class="card">
+              <h4>Power</h4>
+              <p>Use xʸ button for exponents.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Ask Helper -->
+        <section id="agent" class="panel">
+          <h2>Ask Helper</h2>
+          <div id="chat" class="chat">
+            <div class="msg bot"><b>Helper:</b> Hi 👋 Ask me: “how to use sin?”, “what is factorial?”, “keyboard shortcuts?”</div>
+          </div>
+          <div class="ask-row">
+            <input id="askInput" type="text" placeholder="Ask question..." />
+            <button onclick="askHelper()">Send</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="footer">Thanks for using • Student Practice Calculator • Code by Zaineb</div>
+  </div>
+
+  <script>
+    // Welcome prompt
+    let studentName = localStorage.getItem("studentName");
+    if(!studentName){
+      studentName = prompt("Welcome! Enter your name:");
+      if(!studentName || !studentName.trim()) studentName = "Student";
+      localStorage.setItem("studentName", studentName.trim());
+      alert("Welcome " + studentName + "! Thanks for using this calculator.");
+    }
+
+    // Tabs
+    const tabBtns = document.querySelectorAll(".tab-btn");
+    const panels = document.querySelectorAll(".panel");
+    tabBtns.forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        tabBtns.forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        panels.forEach(p=>p.classList.remove("active"));
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    // Calculator
+    const display = document.getElementById("display");
+    const historyEl = document.getElementById("history");
+
+    function append(v){
+      if(display.value==="0" && v!==".") display.value=v;
+      else display.value += v;
+    }
+    function appendFn(fn){
+      if(display.value==="0") display.value=fn;
+      else display.value += fn;
+    }
+    function setConst(c){
+      if(display.value==="0") display.value=c;
+      else display.value += c;
+    }
+    function clearAll(){display.value="0";historyEl.textContent="";}
+    function deleteLast(){
+      if(display.value.length<=1) display.value="0";
+      else display.value = display.value.slice(0,-1);
+    }
+    function factorial(n){
+      n = Number(n);
+      if(!Number.isInteger(n) || n<0) throw new Error("Invalid factorial");
+      let r=1; for(let i=2;i<=n;i++) r*=i; return r;
+    }
+    function calculate(){
+      try{
+        const raw = display.value;
+        const expr = raw.replace(/÷/g,'/').replace(/×/g,'*').replace(/−/g,'-');
+        const result = Function("factorial", `"use strict"; return (${expr});`)(factorial);
+        if(!Number.isFinite(result)) throw new Error("Invalid");
+        historyEl.textContent = raw + " =";
+        display.value = String(result);
+      }catch{
+        display.value = "Error";
+      }
+    }
+
+    document.addEventListener("keydown",(e)=>{
+      const k=e.key, allowed="0123456789.+-*/()%";
+      if(allowed.includes(k)) append(k);
+      else if(k==="Enter"){ e.preventDefault(); calculate(); }
+      else if(k==="Backspace"){ deleteLast(); }
+      else if(k==="Escape"){ clearAll(); }
+    });
+
+    // Helper bot
+    function helperReply(q){
+      const t = q.toLowerCase();
+      if(t.includes("sin")||t.includes("cos")||t.includes("tan"))
+        return "Use sin/cos/tan buttons. Example: sin(π/2) gives 1 (radians).";
+      if(t.includes("factorial")||t.includes("!"))
+        return "Factorial: 5! = 5×4×3×2×1 = 120.";
+      if(t.includes("log"))
+        return "log = base 10. ln = natural log.";
+      if(t.includes("shortcut")||t.includes("keyboard"))
+        return "Keyboard: Enter = result, Backspace = delete, Esc = clear.";
+      if(t.includes("power")||t.includes("xʸ"))
+        return "Use xʸ button. Example: 2 xʸ 3 = 8.";
+      return "I can help with sin, cos, tan, log, factorial, power, and shortcuts.";
+    }
+
+    function askHelper(){
+      const input = document.getElementById("askInput");
+      const chat = document.getElementById("chat");
+      const q = input.value.trim();
+      if(!q) return;
+
+      const user = document.createElement("div");
+      user.className="msg you";
+      user.innerHTML="<b>You:</b> "+q;
+      chat.appendChild(user);
+
+      const bot = document.createElement("div");
+      bot.className="msg bot";
+      bot.innerHTML="<b>Helper:</b> "+helperReply(q);
+      chat.appendChild(bot);
+
+      input.value="";
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    document.getElementById("askInput").addEventListener("keydown",(e)=>{
+      if(e.key==="Enter") askHelper();
+    });
+  </script>
+</body>
+</html>
